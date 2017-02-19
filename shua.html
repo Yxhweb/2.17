@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<script src="newajax.js"></script>
+	</head>
+	<style>
+		*{
+			margin:0;
+			text-decoration: none;
+			padding: 0;
+		}
+		table{
+			table-layout: fixed;
+			width: 1000px;
+			height: 100%;
+			border: 1px solid black;
+			border-collapse: collapse;
+			margin: 0 auto;
+			margin-top:50px;
+			box-shadow: 0 0 4px black;
+		}
+		
+		.title{
+			width:100%;
+			height: 40px;
+			text-align: center;
+			line-height: 40px;
+			font-width: bold;
+		}
+		.add{
+			display:block;
+			width: 100px;
+			height: 30px;
+			margin: 20px auto;
+			border-radius: 5px;
+			background: yellowgreen;
+			line-height: 30px;
+			text-align: center;
+			cursor: pointer;
+			border-radius: 5px;
+			box-shadow: 0 0 4px black;
+			border: 1px solid black;
+		}
+		.shanchu{
+			display:block;
+			width: 50%;
+			height: 25px;
+			margin:0 auto;
+			text-align: center;
+			line-height: 25px;
+			background: red;
+			cursor: pointer;
+			border-radius: 5px;
+			border:1px solid black;
+			color: white;
+			margin-top:1px;
+			box-shadow: 0 0 4px black;
+		}
+		.bianji{
+			display:block;
+			width: 50%;
+			height: 25px;
+			margin:0 auto;
+			text-align: center;
+			line-height: 25px;
+			background: red;
+			cursor: pointer;
+			border-radius: 5px;
+			border:1px solid black;
+			color: white;
+			margin-top:1px;
+			box-shadow: 0 0 4px black;
+		}
+		tr{
+			height: 30px;
+			text-align: center;
+		}
+		td,th{
+			width: 20%;
+			border-bottom: 1px solid black;
+			border-right: 1px solid black;
+		}
+		.tijiao{
+			width: 1000px;
+			height: 40px;
+			text-align: center;
+			line-height: 40px;
+			border-bottom: 1px solid black;
+			margin: 0 auto;
+		}
+		/*.wait{
+			width:5px;
+			position: fixed;
+			animation: wait 0.5s ease infinite alternate;
+		}
+		.wait:before{
+			content: "";
+			position: absolute;
+			
+		}
+		@keyframes wait{
+			%0{
+				transform: scale(1,1);
+			}
+			%100{
+				transform: scale(1,1);
+			}
+		}*/
+		
+	</style>
+	<script>
+		window.onload=function(){
+			var tbody=document.querySelector("tbody");
+			ajax({
+				url:"huo.php",
+				dataType:"json",
+				success:function(e){
+					var str="";
+					for(var i=0;i<e.length;i++){
+						str+="<tr id="+e[i].id+">";
+							str+="<td class='id'>"+e[i].id+"</td>";
+							str+="<td class='name'>"+e[i].name+"</td>";
+							str+="<td class='sex'>"+e[i].sex+"</td>";
+							str+="<td class='age'>"+e[i].age+"</td>";
+							str+="<td>"+"<div class='shanchu'>删除</div>"+"</td>";
+						str+="</tr>";
+					}
+					tbody.innerHTML=str;
+				}	
+			})
+			
+//			删除
+			tbody.onclick=function(e){
+			var eve=e||window.event;
+			var obj=eve.target||eve.srcElement;
+			if(obj.className=="shanchu"){
+				var father=obj.parentNode.parentNode;
+				var fatherId=obj.parentNode.parentNode.id;
+				ajax({
+					url:"del.php",
+					data:{id:fatherId},
+					success:function(obj){
+						if(obj=="ok"){
+							tbody.removeChild(father);
+							}
+						location.reload(true);
+						}
+					})
+				} 
+			}
+			
+			
+//			添加	
+			var add=document.querySelector(".add");
+			console.log(add)
+			add.onclick=function(){
+				ajax({
+					url:"add.php",
+					success:function(obj){
+							if(obj){
+							var tr=document.createElement("tr");
+							tr.id=obj;
+							tr.innerHTML="<td></td><td></td><td></td><td></td><td><div class='shanchu'>删除</div></td>"
+		                    tbody.appendChild(tr);
+						}
+						location.reload(true);
+					}
+				})
+			}
+			
+			
+			
+//			修改
+			tbody.ondblclick=function(e){
+				var eve=e||window.event;
+				var obj=eve.target||eve.srcElement;
+				if(obj.nodeName=="TD"){
+					var oldvalue=obj.innerHTML;
+					obj.innerHTML="";
+					var input=document.createElement("input");
+					input.style.width="50%";
+					input.value=oldvalue;
+					obj.appendChild(input);
+					input.focus();
+					input.onblur=function(){
+						var newvalue=input.value;
+						if(newvalue==""&&newvalue==oldvalue){
+							obj.removeChild(input);
+							input=null;
+							obj.innerHTML=oldvalue;
+						}else{
+							var fatherId=obj.parentNode.id;
+							var hqname=obj.className;
+							console.log(hqname)
+							ajax({
+								url:"up.php",
+								data:{"id":fatherId,"hqname":hqname,"value":newvalue},
+								success:function(obj){
+									obj.innerHTML=newvalue;
+									location.reload(true);
+								}
+							})
+						}
+					}
+					
+				}
+			}
+			
+			
+			
+		
+			
+			
+			
+		}
+		
+		
+	</script>
+	
+	<body>
+		<table>
+			<caption style="margin-bottom: 10px;">学生管理</caption>
+			<thead>
+				<tr>
+					<th>学号</th>
+					<th>姓名</th>
+					<th>性别</th>
+					<th>年龄</th>
+					<th>删除</th>
+				</tr>
+			</thead>
+			<tbody></tbody>
+			
+		</table>
+		<div><div class="add">添加</div></div>
+		
+		
+		
+	</body>
+</html>
